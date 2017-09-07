@@ -1,0 +1,47 @@
+version: '3'
+
+services:
+
+  master:
+    hostname: postgresql-0
+    image: centerforopenscience/postgres:9.6-repmgr
+    command:
+      - /bin/bash
+      - -c
+      - chmod 550 /entrypoint.sh && /usr/bin/supervisord
+    env_file:
+      - docker-compose.env
+    volumes:
+      - ./config/entrypoint.sh:/entrypoint.sh
+      - ./config/repmgr.conf:/etc/_repmgr.conf
+      - ./config/supervisord.conf:/etc/supervisor/conf.d/supervisord.conf
+    ports:
+      - '5432:5432'
+    networks:
+      overlay:
+        aliases:
+          - postgresql-0
+          - postgresql
+          - postgres
+
+  standby:
+    hostname: postgresql-1
+    image: centerforopenscience/postgres:9.6-repmgr
+    command:
+      - /bin/bash
+      - -c
+      - chmod 550 /entrypoint.sh && /usr/bin/supervisord
+    env_file:
+      - docker-compose.env
+    volumes:
+      - ./config/entrypoint.sh:/entrypoint.sh
+      - ./config/repmgr.conf:/etc/_repmgr.conf
+      - ./config/supervisord.conf:/etc/supervisor/conf.d/supervisord.conf
+    networks:
+      overlay:
+        aliases:
+          - standby
+
+networks:
+  overlay:
+    driver: bridge
