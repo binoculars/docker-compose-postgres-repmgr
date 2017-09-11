@@ -11,6 +11,9 @@ services:
       - chmod 550 /entrypoint.sh && /usr/bin/supervisord
     env_file:
       - docker-compose.env
+    environment:
+      POD_IP: 172.8.0.1
+      POD_NAME: postgresql-0
     volumes:
       - ./config/entrypoint.sh:/entrypoint.sh
       - ./config/repmgr.conf:/etc/_repmgr.conf
@@ -33,6 +36,9 @@ services:
       - chmod 550 /entrypoint.sh && /usr/bin/supervisord
     env_file:
       - docker-compose.env
+    environment:
+      POD_IP: 172.8.0.2
+      POD_NAME: postgresql-1
     volumes:
       - ./config/entrypoint.sh:/entrypoint.sh
       - ./config/repmgr.conf:/etc/_repmgr.conf
@@ -41,6 +47,21 @@ services:
       overlay:
         aliases:
           - standby
+
+  barman:
+    hostname: barman
+    image: centerforopenscience/barman:9.6
+    env_file:
+      - docker-compose.env
+    environment:
+      POD_IP: 172.8.0.3
+      POD_NAME: barman-498932869-1bcxy
+    volumes:
+      - ./config/barman-db.conf:/etc/barman.d/barman-db.conf
+    networks:
+      overlay:
+        aliases:
+          - barman
 
 networks:
   overlay:
